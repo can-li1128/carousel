@@ -18,7 +18,7 @@
 
 *Associated code*
 -  A program to enter multiple ISBNs on a browser, retrieve the FIRST cover and exit. e.g. 0811238652; 9780811238656; 9780811239578; 0811239578
-   page: https://can-li1128.github.io/display-designs/fetch-image
+    - page: https://can-li1128.github.io/display-designs/fetch-image
     code: https://github.com/can-li1128/display-designs/blob/master/fetch-image.html
 -  The initial new books Excel from Alma analytics doesn't have image links. Without image URLs, the program searches for an cover images for every row every single time the page loads. Loading the page with 89 covers takes 1-2 minutes. Populating the Excel with image URLs in a new column, img_url, avoids this problem--the page loads instantly. This program takes an Excel with ISBNs on the browser and output an Excel with the new column.
    page: https://can-li1128.github.io/display-designs/add-imagelinks

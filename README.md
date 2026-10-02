@@ -17,5 +17,9 @@
 - Aria Labeling & Hidden Clones: Decorative looping duplicates are marked with aria-hidden="true" to prevent redundant screen reader announcements, and links include descriptive aria-label text combining titles and authors.
 
 *Associated code*
--  https://can-li1128.github.io/display-designs/fetch-image (enter multiple ISBNs, retrieve the FIRST cover and exit)
--  The initial new books Excel from Alma analytics doesn't have image links. When the program searches for images every single time, loading the page with 89 covers takes 1-2 minutes. Populating the Excel with image URLs avoids this problem. https://can-li1128.github.io/display-designs/add-imagelinks populates the Excel with img_url new column. 
+-  A program to enter multiple ISBNs on a browser, retrieve the FIRST cover and exit. e.g. 0811238652; 9780811238656; 9780811239578; 0811239578
+   page: https://can-li1128.github.io/display-designs/fetch-image
+    code: https://github.com/can-li1128/display-designs/blob/master/fetch-image.html
+-  The initial new books Excel from Alma analytics doesn't have image links. Without image URLs, the program searches for an cover images for every row every single time the page loads. Loading the page with 89 covers takes 1-2 minutes. Populating the Excel with image URLs in a new column, img_url, avoids this problem--the page loads instantly. This program takes an Excel with ISBNs on the browser and output an Excel with the new column.
+   page: https://can-li1128.github.io/display-designs/add-imagelinks
+   code: https://github.com/can-li1128/display-designs/blob/master/add-imagelinks.html

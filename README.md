@@ -2,6 +2,7 @@
 *Content*
 - index.html is a self-contained .html file that has html, CSS, and script. It's all you need to run this carousel with your file.
 - new-arrivals.xlsx minimally requires title, author, ISBNs (used to fetch Syndetics cover link), MMS ID (Alma specific ID used to generate permalink)
+- the new-arrivals.xlsx used in index.html has already been populated with images links and permalinks. Intermediate steps are completed with programs in Associated code section.
 
 *Function*
 - index.html automatically reads book records in new-arrivals.xlsx from the same directory, extracts cover image from URLs, titles, formats author names, and uses permalinks to open Primo records on clicking. 

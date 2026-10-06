@@ -60,13 +60,17 @@
       background: #003d80; outline: 3px solid #ffbf47; outline-offset: 2px;
     }
 
-    /* Allow overflow vertically so the card can extend outside */
+    /* Allow vertical overflow so the extended card drops out of the container cleanly */
     .carousel-wrapper { 
       position: relative; 
       width: 100%; 
-      overflow-x: hidden; /* Hide horizontal sliding overflow */
-      overflow-y: visible; /* Allow vertical extension */
-      padding-bottom: 25px; /* Give room at the bottom for the extended card */
+      overflow-x: hidden; 
+      overflow-y: visible; 
+      padding-bottom: 30px; 
+    }
+    
+    .carousel-track {
+      display: flex; gap: var(--gap-size); transition: transform 0.5s ease-in-out;
     }
 
     .book-card {
@@ -76,10 +80,14 @@
       transition: transform 0.3s ease, z-index 0.3s ease;
     }
 
-    /* Elevate z-index, scale up by 1.15x, and shift downward to extend out */
+    .book-card-link {
+      display: block; position: relative; width: 100%; text-decoration: none; color: inherit;
+    }
+
+    /* Shift card down and scale up 1.15x on hover/focus, extending out of the carousel */
     .book-card:hover, .book-card:focus-within {
-      transform: translateY(15px) scale(1.15); /* Moves down 15px and enlarges */
-      z-index: 50; /* Ensures it floats above neighboring cards */
+      transform: translateY(15px) scale(1.15);
+      z-index: 50;
     }
 
     .book-card img {
@@ -91,7 +99,24 @@
     .book-card:hover img, .book-card-link:focus-visible img {
       box-shadow: 0 12px 25px rgba(0,0,0,0.4);
     }
-   /* END OF Allow overflow vertically so the card can extend outside */ 
+
+    .book-card-link:focus-visible {
+      outline: 3px solid #0056b3; outline-offset: 4px; border-radius: 4px;
+    }
+
+    /* Hover Info Overlay Box */
+    .book-info-overlay {
+      position: absolute; bottom: 8px; left: 5%; width: 90%;
+      background: rgba(0, 0, 0, 0.88); color: #ffffff; padding: 8px 10px;
+      border-radius: 6px; box-sizing: border-box; text-align: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+      z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .book-card:hover .book-info-overlay,
+    .book-card-link:focus-visible .book-info-overlay {
+      opacity: 1;
+    }
 
     .book-title {
       font-size: 0.85rem; font-weight: bold; line-height: 1.2;
@@ -129,8 +154,9 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .carousel-track, .book-card img, .book-info-overlay, .book-author {
+      .carousel-track, .book-card, .book-card img, .book-info-overlay, .book-author {
         transition: none !important;
+        transform: none !important;
       }
     }
   </style>

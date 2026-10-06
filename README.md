@@ -1,8 +1,10 @@
 # Carousel Design for New Books #
 *Content*
-- index.html is a self-contained .html file that has html, CSS, and script. It's all you need to run this carousel with your file.
-- new-arrivals.xlsx minimally requires title, author, ISBNs (used to fetch Syndetics cover link), MMS ID (Alma specific ID used to generate permalink)
-- the new-arrivals.xlsx used in index.html has already been populated with images links and permalinks. Intermediate steps are completed with programs in Associated code section.
+- index.html is a self-contained .html file that has html, CSS, and script. It's all you need to run this carousel with your file. Replace filename in line 178 const JSON_FILE_PATH = '2026spring_updated.json' with your own file.
+- 2026spring.xlsx is an Alma report with five columns: Title, ISBN, Author, Publication Date, & MMS ID. 
+    a) Run excel_to_json.py with this Excel to retrieve same data in JSON format (in my repo, 2026spring.json); 
+    b) Run json_data_enricher.html to add Syndetics img_url and Primo permalinks to each title in JSON (in my repo, 2026spring_updated.json)
+  - 2026spring_updated.json is used as input for the carousel.
 
 *Function*
 - index.html automatically reads book records in new-arrivals.xlsx from the same directory, extracts cover image from URLs, titles, formats author names, and uses permalinks to open Primo records on clicking. 

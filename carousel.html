@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Books Carousel</title>
+  
+  <style>
+    :root {
+      --gap-size: 15px;
+      --visible-items: 7;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    h2 { text-align: center; margin-bottom: 20px; }
+
+    .status-container {
+      background: #fff;
+      padding: 15px 20px;
+      border-radius: 8px;
+      max-width: 600px;
+      margin: 0 auto 20px auto;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    #status { font-weight: bold; color: #0056b3; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
+
+    .carousel-region {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      padding: 20px 15px;
+    }
+
+    .carousel-controls {
+      display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px;
+    }
+
+    .carousel-btn {
+      background: #0056b3; color: #ffffff; border: none; padding: 8px 14px;
+      border-radius: 4px; font-size: 0.9rem; font-weight: bold; cursor: pointer;
+    }
+
+    .carousel-btn:hover, .carousel-btn:focus-visible {
+      background: #003d80; outline: 3px solid #ffbf47; outline-offset: 2px;
+    }
+
+    .carousel-wrapper { position: relative; width: 100%; overflow: hidden; }
+    
+    .carousel-track {
+      display: flex; gap: var(--gap-size); transition: transform 0.5s ease-in-out;
+    }
+
+    .book-card {
+      flex: 0 0 calc((100% - (var(--gap-size) * (var(--visible-items) - 1))) / var(--visible-items));
+      display: flex; align-items: center; justify-content: center;
+      box-sizing: border-box; padding: 5px; position: relative;
+    }
+
+    .book-card-link {
+      display: block; position: relative; width: 100%; text-decoration: none; color: inherit;
+    }
+
+    .book-card img {
+      width: 100%; height: 220px; object-fit: contain; border-radius: 4px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.18);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Enlarge image by 1.15 times on hover or keyboard focus */
+    .book-card:hover img, .book-card-link:focus-visible img {
+      transform: scale(1.15); 
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    }
+
+    .book-card-link:focus-visible {
+      outline: 3px solid #0056b3; outline-offset: 4px; border-radius: 4px;
+    }
+
+    /* Hover Info Overlay Box */
+    .book-info-overlay {
+      position: absolute; bottom: 8px; left: 5%; width: 90%;
+      background: rgba(0, 0, 0, 0.88); color: #ffffff; padding: 8px 10px;
+      border-radius: 6px; box-sizing: border-box; text-align: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+      z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .book-card:hover .book-info-overlay,
+    .book-card-link:focus-visible .book-info-overlay {
+      opacity: 1;
+    }
+
+    .book-title {
+      font-size: 0.85rem; font-weight: bold; line-height: 1.2;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    .book-author {
+      font-size: 0.75rem; color: #ffbf47; margin-top: 4px;
+      opacity: 0; transform: translateY(3px);
+      transition: opacity 0.4s ease 1s, transform 0.4s ease 1s; /* 1 Second Delay */
+    }
+
+    .book-card:hover .book-author,
+    .book-card-link:focus-visible .book-author {
+      opacity: 1; transform: translateY(0);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      :root { --visible-items: 4; }
+      .book-card img { height: 190px; }
+      .book-title { font-size: 0.8rem; }
+    }
+
+    @media (max-width: 767px) {
+      :root { --visible-items: 3; }
+      .book-card img { height: 160px; }
+      .book-title { font-size: 0.75rem; }
+      .book-author { font-size: 0.7rem; }
+    }
+
+    @media (max-width: 480px) {
+      :root { --visible-items: 2; }
+      .book-card img { height: 140px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .carousel-track, .book-card img, .book-info-overlay, .book-author {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main>
+    <h2>New Arrivals 2026 Spring</h2>
+
+    <div class="status-container">
+      <div id="status" role="status">Loading book data...</div>
+    </div>
+
+    <div id="sr-status" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <section class="carousel-region" id="carouselRegion" aria-label="New Books Carousel">
+      
+      <nav class="carousel-controls" aria-label="Carousel Navigation">
+        <button id="prevBtn" class="carousel-btn" aria-label="Previous Slide">&lt; Prev</button>
+        <button id="togglePlayBtn" class="carousel-btn" aria-label="Pause Auto Rotation">Pause</button>
+        <button id="nextBtn" class="carousel-btn" aria-label="Next Slide">Next &gt;</button>
+      </nav>
+
+      <div class="carousel-wrapper">
+        <div class="carousel-track" id="carouselTrack"></div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    const JSON_FILE_PATH = '2026spring_updated.json';
+    
+    let carouselInterval = null;
+    let isPaused = false;
+    let currentIndex = 0;
+    let totalItems = 0; 
+    let visibleItems = 7;
+
+    window.addEventListener('DOMContentLoaded', initApp);
+    window.addEventListener('resize', handleResize);
+
+    function formatAuthorName(rawAuthor) {
+      if (!rawAuthor) return '';
+      let str = String(rawAuthor).trim();
+      
+      // Remove MARC subfield codes (e.g. $$Q,$$R) if present
+      str = str.replace(/\$\$[A-Z].*/g, '').trim();
+      
+      if (str.includes(',')) {
+        const parts = str.split(',').map(p => p.trim()).filter(Boolean);
+        if (parts.length >= 2) {
+          const lastName = parts[0].replace(/[.,;]$/, '');
+          let firstName = parts[1];
+          
+          // Remove dates (e.g. 1835-1901, 1902-) and numbers
+          firstName = firstName.replace(/\b\d{4}(-\d{4})?\b/g, '').replace(/[0-9]/g, '').trim();
+          
+          // Remove trailing role labels if present (e.g., author, editor)
+          firstName = firstName.replace(/\b(author|editor|translator|compiler)\b/gi, '').trim();
+          firstName = firstName.replace(/[.,;]$/, '').trim();
+          
+          if (firstName) {
+            return `${firstName} ${lastName}`;
+          }
+          return lastName;
+        }
+      }
+      return str;
+    }
+
+    function getVisibleItemsCount() {
+      const width = window.innerWidth;
+      if (width <= 480) return 2;
+      if (width <= 767) return 3;
+      if (width <= 1024) return 4;
+      return 7;
+    }
+
+    function handleResize() {
+      visibleItems = getVisibleItemsCount();
+      updateTrackPosition(false);
+    }
+
+    async function initApp() {
+      visibleItems = getVisibleItemsCount();
+      
+      const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (motionQuery.matches) {
+        isPaused = true;
+        document.getElementById('togglePlayBtn').textContent = 'Play';
+      }
+
+      await loadJsonAndInitCarousel();
+      setupEventListeners();
+    }
+
+    async function loadJsonAndInitCarousel() {
+      const status = document.getElementById('status');
+      const track = document.getElementById('carouselTrack');
+      const region = document.getElementById('carouselRegion');
+
+      try {
+        status.textContent = `Fetching ${JSON_FILE_PATH}...`;
+        const response = await fetch(JSON_FILE_PATH);
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+
+        const rows = await response.json();
+        status.textContent = 'Processing book covers...';
+        
+        const validBooks = [];
+
+        rows.forEach(row => {
+          const imgUrl = row.img_url ? String(row.img_url).trim() : '';
+          const title = row.title ? String(row.title).trim().replace(/\s*\/\s*$/, '') : 'Untitled';
+          const rawAuthor = row.author ? String(row.author).trim() : '';
+          const recordUrl = row.permalink ? String(row.permalink).trim() : '#';
+
+          if (imgUrl) {
+            validBooks.push({
+              imgUrl,
+              title,
+              author: formatAuthorName(rawAuthor),
+              recordUrl
+            });
+          }
+        });
+
+        if (validBooks.length === 0) {
+          status.textContent = 'No image URLs found in JSON.';
+          return;
+        }
+
+        status.textContent = `Loaded ${validBooks.length} book cover(s).`;
+        region.style.display = 'block';
+        totalItems = validBooks.length;
+
+        validBooks.forEach((item) => {
+          track.appendChild(createBookCard(item));
+        });
+
+        if (totalItems > visibleItems) {
+          const emptySpacer = track.firstElementChild.cloneNode(true);
+          emptySpacer.setAttribute('aria-hidden', 'true');
+          emptySpacer.style.visibility = 'hidden'; 
+          track.appendChild(emptySpacer);
+
+          for (let i = 0; i < 7; i++) {
+            const clone = track.children[i].cloneNode(true);
+            clone.setAttribute('aria-hidden', 'true');
+            track.appendChild(clone);
+          }
+        }
+
+        startCarousel();
+
+      } catch (err) {
+        console.error(err);
+        status.textContent = `Error: ${err.message}`;
+      }
+    }
+
+    function createBookCard(item) {
+      const card = document.createElement('div');
+      card.className = 'book-card';
+
+      const accessibleLabel = item.author 
+        ? `${item.title} by ${item.author}` 
+        : item.title;
+
+      card.innerHTML = `
+        <a href="${item.recordUrl}" 
+           class="book-card-link" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           aria-label="${accessibleLabel} - Open in catalog">
+          <img src="${item.imgUrl}" alt="${accessibleLabel}" onError="this.style.visibility='hidden';" />
+          <div class="book-info-overlay" aria-hidden="true">
+            <div class="book-title">${item.title}</div>
+            ${item.author ? `<div class="book-author">${item.author}</div>` : ''}
+          </div>
+        </a>
+      `;
+      return card;
+    }
+
+    function updateTrackPosition(animated = true) {
+      const track = document.getElementById('carouselTrack');
+      const firstCard = track.firstElementChild;
+      if (!firstCard) return;
+
+      const cardWidth = firstCard.offsetWidth;
+      const shiftPx = currentIndex * (cardWidth + 15);
+
+      track.style.transition = animated ? 'transform 0.5s ease-in-out' : 'none';
+      track.style.transform = `translateX(-${shiftPx}px)`;
+    }
+
+    function rotateCarousel() {
+      if (totalItems <= visibleItems) return;
+
+      currentIndex++;
+      updateTrackPosition(true);
+
+      if (currentIndex === totalItems + 1) {
+        setTimeout(() => {
+          currentIndex = 0;
+          updateTrackPosition(false);
+          void document.getElementById('carouselTrack').offsetWidth;
+        }, 500);
+      }
+    }
+
+    function setupEventListeners() {
+      const region = document.getElementById('carouselRegion');
+      const toggleBtn = document.getElementById('togglePlayBtn');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      region.addEventListener('mouseenter', stopCarousel);
+      region.addEventListener('mouseleave', () => { if (!isPaused) startCarousel(); });
+      region.addEventListener('focusin', stopCarousel);
+      region.addEventListener('focusout', () => { if (!isPaused) startCarousel(); });
+
+      toggleBtn.addEventListener('click', () => {
+        isPaused = !isPaused;
+        if (isPaused) {
+          stopCarousel();
+          toggleBtn.textContent = 'Play';
+        } else {
+          startCarousel();
+          toggleBtn.textContent = 'Pause';
+        }
+      });
+
+      prevBtn.addEventListener('click', () => {
+        stopCarousel();
+        currentIndex = currentIndex <= 0 ? totalItems : currentIndex - 1;
+        updateTrackPosition(true);
+      });
+
+      nextBtn.addEventListener('click', () => {
+        stopCarousel();
+        rotateCarousel();
+      });
+    }
+
+    function startCarousel() {
+      if (carouselInterval || isPaused || totalItems <= visibleItems) return;
+      carouselInterval = setInterval(rotateCarousel, 2000);
+    }
+
+    function stopCarousel() {
+      if (carouselInterval) {
+        clearInterval(carouselInterval);
+        carouselInterval = null;
+      }
+    }
+  </script>
+
+</body>
+</html>

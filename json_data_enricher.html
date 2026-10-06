@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Book Metadata Enricher</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 650px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    .card {
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #0056b3;
+      margin-top: 0;
+    }
+    .upload-box {
+      margin: 20px 0;
+      padding: 25px;
+      border: 2px dashed #0056b3;
+      border-radius: 6px;
+      background: #f1f7ff;
+      text-align: center;
+    }
+    input[type="file"] {
+      margin-bottom: 10px;
+    }
+    button {
+      background: #28a745;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      display: none;
+      margin: 20px auto 0 auto;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #218838;
+    }
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+    .progress-bar {
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 4px;
+      margin-top: 15px;
+      display: none;
+    }
+    .progress-fill {
+      width: 0%;
+      height: 12px;
+      background-color: #0056b3;
+      border-radius: 4px;
+      transition: width 0.2s;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>JSON Book Metadata Enricher</h2>
+    <p>Upload your JSON file containing book metadata. This tool will verify Syndetics cover images for the ISBNs and append <code>img_url</code> and <code>permalink</code> to each record.</p>
+
+    <div class="upload-box">
+      <input type="file" id="jsonFile" accept=".json" />
+    </div>
+
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div id="status"></div>
+    <button id="downloadBtn" onclick="downloadUpdatedJson()">Download Updated JSON</button>
+  </div>
+
+  <script>
+    const CLIENT_CODE = 'primo';
+    let updatedBooksData = [];
+    let originalFilename = 'updated_books.json';
+
+    // Helper: Pre-checks if an image URL returns a valid image (filters out blank 1x1 GIFs)
+    function checkImageExists(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          if (img.naturalWidth > 1 && img.naturalHeight > 1) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        };
+        img.onerror = () => resolve(false);
+        img.src = url;
+      });
+    }
+
+    document.getElementById('jsonFile').addEventListener('change', handleFileUpload);
+
+    async function handleFileUpload(event) {
+      const file = event.target.files[0];
+      const status = document.getElementById('status');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const progressBar = document.getElementById('progressBar');
+      const progressFill = document.getElementById('progressFill');
+
+      if (!file) return;
+
+      originalFilename = file.name.replace(/\.[^/.]+$/, "") + "_updated.json";
+      downloadBtn.style.display = 'none';
+      progressBar.style.display = 'block';
+      progressFill.style.width = '0%';
+      status.textContent = 'Reading JSON file...';
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const rawData = JSON.parse(e.target.result);
+          const books = Array.isArray(rawData) ? rawData : [rawData];
+
+          status.textContent = `Processing ${books.length} book records...`;
+          updatedBooksData = [];
+
+          for (let i = 0; i < books.length; i++) {
+            const book = books[i];
+            const updatedBook = { ...book };
+
+            // 1. Generate Permalink using mmsId
+            const mmsId = String(book.mmsId || '').trim();
+            if (mmsId) {
+              const cleanMmsId = mmsId.replace(/^alma/i, '');
+              updatedBook.permalink = `https://csu-sfsu.primo.exlibrisgroup.com/permalink/01CALS_SFR/anf0q0/alma${cleanMmsId}`;
+            } else {
+              updatedBook.permalink = '';
+            }
+
+            // 2. Extract ISBNs and test Syndetics cover image URLs
+            updatedBook.img_url = '';
+            const rawIsbn = String(book.isbn || '').trim();
+
+            if (rawIsbn) {
+              const isbns = rawIsbn
+                .split(/[;,]+/)
+                .map(s => s.trim().replace(/[^0-9X]/gi, ''))
+                .filter(s => s.length >= 10);
+
+              for (const cleanIsbn of isbns) {
+                const testUrl = `https://syndetics.com/index.aspx?isbn=${cleanIsbn}/LC.GIF&client=${CLIENT_CODE}&type=xw12`;
+                const isValid = await checkImageExists(testUrl);
+
+                if (isValid) {
+                  updatedBook.img_url = testUrl;
+                  break; // Keep only the first verified cover image URL
+                }
+              }
+            }
+
+            updatedBooksData.push(updatedBook);
+
+            // Update UI progress
+            const progressPercent = Math.round(((i + 1) / books.length) * 100);
+            progressFill.style.width = `${progressPercent}%`;
+            status.textContent = `Processing item ${i + 1} of ${books.length}...`;
+          }
+
+          status.textContent = `Completed processing ${books.length} records!`;
+          downloadBtn.style.display = 'block';
+
+        } catch (err) {
+          console.error(err);
+          status.textContent = 'Error processing file. Please ensure it is a valid JSON file.';
+          progressBar.style.display = 'none';
+        }
+      };
+
+      reader.readAsText(file);
+    }
+
+    function downloadUpdatedJson() {
+      if (!updatedBooksData || updatedBooksData.length === 0) return;
+
+      const jsonString = JSON.stringify(updatedBooksData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = originalFilename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+
+</body>
+</html>

@@ -60,14 +60,7 @@
       background: #003d80; outline: 3px solid #ffbf47; outline-offset: 2px;
     }
 
-    /* Allow vertical overflow so the extended card drops out of the container cleanly */
-    .carousel-wrapper { 
-      position: relative; 
-      width: 100%; 
-      overflow-x: hidden; 
-      overflow-y: visible; 
-      padding-bottom: 30px; 
-    }
+    .carousel-wrapper { position: relative; width: 100%; overflow: hidden; }
     
     .carousel-track {
       display: flex; gap: var(--gap-size); transition: transform 0.5s ease-in-out;
@@ -77,27 +70,22 @@
       flex: 0 0 calc((100% - (var(--gap-size) * (var(--visible-items) - 1))) / var(--visible-items));
       display: flex; align-items: center; justify-content: center;
       box-sizing: border-box; padding: 5px; position: relative;
-      transition: transform 0.3s ease, z-index 0.3s ease;
     }
 
     .book-card-link {
       display: block; position: relative; width: 100%; text-decoration: none; color: inherit;
     }
 
-    /* Shift card down and scale up 1.15x on hover/focus, extending out of the carousel */
-    .book-card:hover, .book-card:focus-within {
-      transform: translateY(15px) scale(1.15);
-      z-index: 50;
-    }
-
     .book-card img {
       width: 100%; height: 220px; object-fit: contain; border-radius: 4px;
       box-shadow: 0 3px 6px rgba(0,0,0,0.18);
-      transition: box-shadow 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
+    /* Enlarge image by 1.15 times on hover or keyboard focus */
     .book-card:hover img, .book-card-link:focus-visible img {
-      box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+      transform: scale(1.15); 
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
     }
 
     .book-card-link:focus-visible {
@@ -154,9 +142,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .carousel-track, .book-card, .book-card img, .book-info-overlay, .book-author {
+      .carousel-track, .book-card img, .book-info-overlay, .book-author {
         transition: none !important;
-        transform: none !important;
       }
     }
   </style>

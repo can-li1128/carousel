@@ -7,7 +7,7 @@
   -  2026spring_updated.json is used as input for the carousel.
 
 *Function*
-- index.html automatically reads book records in new-arrivals.xlsx from the same directory, extracts cover image from URLs, titles, formats author names, and uses permalinks to open Primo records on clicking. 
+- index.html reads book records in 2026spring_updated.json from the same directory, displays thumbnail cover image from img_url, titles, formats author names, and on clicking, links to Primo records. 
 - Smooth infinite auto-rotation & controls: auto starts at loading, rotates in a continuous loop at 2-second interval, supported by Prev, Pause/Play, and Next navigation buttons.
 - Hover behaviors: pauses rotation, magnifies book covers by 1.15 times on mouse hover or keyboard focus, displaying the book title immediately on a card and author after a 1-second delay.
 - Linking: Clicking any book cover opens Primo record in a new tab

@@ -60,51 +60,38 @@
       background: #003d80; outline: 3px solid #ffbf47; outline-offset: 2px;
     }
 
-    .carousel-wrapper { position: relative; width: 100%; overflow: hidden; }
-    
-    .carousel-track {
-      display: flex; gap: var(--gap-size); transition: transform 0.5s ease-in-out;
+    /* Allow overflow vertically so the card can extend outside */
+    .carousel-wrapper { 
+      position: relative; 
+      width: 100%; 
+      overflow-x: hidden; /* Hide horizontal sliding overflow */
+      overflow-y: visible; /* Allow vertical extension */
+      padding-bottom: 25px; /* Give room at the bottom for the extended card */
     }
 
     .book-card {
       flex: 0 0 calc((100% - (var(--gap-size) * (var(--visible-items) - 1))) / var(--visible-items));
       display: flex; align-items: center; justify-content: center;
       box-sizing: border-box; padding: 5px; position: relative;
+      transition: transform 0.3s ease, z-index 0.3s ease;
     }
 
-    .book-card-link {
-      display: block; position: relative; width: 100%; text-decoration: none; color: inherit;
+    /* Elevate z-index, scale up by 1.15x, and shift downward to extend out */
+    .book-card:hover, .book-card:focus-within {
+      transform: translateY(15px) scale(1.15); /* Moves down 15px and enlarges */
+      z-index: 50; /* Ensures it floats above neighboring cards */
     }
 
     .book-card img {
       width: 100%; height: 220px; object-fit: contain; border-radius: 4px;
       box-shadow: 0 3px 6px rgba(0,0,0,0.18);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: box-shadow 0.3s ease;
     }
 
-    /* Enlarge image by 1.15 times on hover or keyboard focus */
     .book-card:hover img, .book-card-link:focus-visible img {
-      transform: scale(1.15); 
-      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.4);
     }
-
-    .book-card-link:focus-visible {
-      outline: 3px solid #0056b3; outline-offset: 4px; border-radius: 4px;
-    }
-
-    /* Hover Info Overlay Box */
-    .book-info-overlay {
-      position: absolute; bottom: 8px; left: 5%; width: 90%;
-      background: rgba(0, 0, 0, 0.88); color: #ffffff; padding: 8px 10px;
-      border-radius: 6px; box-sizing: border-box; text-align: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-      z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-
-    .book-card:hover .book-info-overlay,
-    .book-card-link:focus-visible .book-info-overlay {
-      opacity: 1;
-    }
+   /* END OF Allow overflow vertically so the card can extend outside */ 
 
     .book-title {
       font-size: 0.85rem; font-weight: bold; line-height: 1.2;

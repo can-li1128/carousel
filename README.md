@@ -3,7 +3,6 @@
 - files used for index.html to run:
     - index.html
     - 2026spring.xlsx -> 2026spring.json -> 2026spring_updated.json
-    
 - index.html is a self-contained .html file that has html, CSS, and script. It's all you need to run this carousel with your file. Replace filename '2026spring_updated.json' in line 178 with your own file that include the same elements.
 - 2026spring.xlsx is an Alma report with five columns: Title, ISBN, Author, Publication Date, & MMS ID.
   -  Run excel_to_json.py with this Excel to retrieve same data in JSON format (in my repo, it generates 2026spring.json);
@@ -27,6 +26,7 @@
 -  A program to enter multiple ISBNs on a browser, retrieve the FIRST cover and exit. e.g. 0811238652; 9780811238656; 9780811239578; 0811239578
     - page: https://can-li1128.github.io/display-designs/fetch-image
     - code: https://github.com/can-li1128/display-designs/blob/master/fetch-image.html
--  The initial new books Excel from Alma analytics doesn't have image links. Without image URLs, the program searches for an cover images for every row every single time the page loads. Loading the page with 89 covers takes 1-2 minutes. Populating the Excel with image URLs in a new column, img_url, avoids this problem--the page loads instantly. This program takes an Excel with ISBNs on the browser and output an Excel with the new column.
+- This program takes an Excel with ISBNs on the browser and output an Excel populated image URLs in a new column, img_url..
      - page: https://can-li1128.github.io/display-designs/add-imagelinks
      - code: https://github.com/can-li1128/display-designs/blob/master/add-imagelinks.html
+- excel_carousel.html reads new-arrivals.xlsx to generate carousel. To use this code, replace file name in line 179 with your own Excel file with the same columns.
